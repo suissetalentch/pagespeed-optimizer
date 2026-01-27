@@ -26,28 +26,26 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 
 ## Obtenir un rapport PageSpeed
 
-> L'API PageSpeed est rate-limitée. Utilisez une de ces méthodes:
+**Méthode automatique (Lighthouse CLI):**
 
-**Option 1: Depuis pagespeed.web.dev (le plus simple)**
-1. Aller sur https://pagespeed.web.dev et lancer l'analyse
-2. Une fois terminé, cliquer sur **⋮** (menu 3 points en haut à droite)
-3. Cliquer **"Télécharger le rapport"** → fichier JSON
-4. Fournir le fichier: `/pagespeed-optimizer ./report.json`
-
-Ou simplement copier les 4 scores et les coller:
-```
-Performance: 65, Accessibility: 82, Best Practices: 78, SEO: 90
-```
-
-**Option 2: Lighthouse CLI (local, sans limite)**
+Si Chrome n'est pas installé, installer d'abord:
 ```bash
-npx lighthouse https://example.com --output=json --output-path=./report.json
-npx lighthouse https://example.com --output=html --view  # Ouvre dans navigateur
+npx @puppeteer/browsers install chrome@stable
 ```
 
-**Option 3: Chrome DevTools**
-1. F12 → Onglet "Lighthouse" → "Analyze page load"
-2. Menu ⋮ → "Save as JSON"
+Puis lancer l'audit:
+```bash
+CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
+npx lighthouse https://example.com --output=json --output-path=./report.json --chrome-flags="--headless --no-sandbox"
+```
+
+**Méthode manuelle (si rate-limité):**
+
+Demander à l'utilisateur de fournir les scores depuis https://pagespeed.web.dev :
+```
+Quels sont vos scores PageSpeed actuels ?
+Format: Performance: XX, Accessibility: XX, Best Practices: XX, SEO: XX
+```
 
 ## Workflow
 
