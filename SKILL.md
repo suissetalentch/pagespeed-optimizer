@@ -15,35 +15,35 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 - composer.json: !`cat composer.json 2>/dev/null | head -20 || echo "Not found"`
 - Framework config: !`ls -la vite.config.* next.config.* nuxt.config.* webpack.config.* 2>/dev/null || echo "No config found"`
 
-## Scores (à remplir)
+## Scores
 
-| Catégorie | Avant | Après | Δ |
-|-----------|-------|-------|---|
+| Category | Before | After | Δ |
+|----------|--------|-------|---|
 | Performance | | | |
 | Accessibility | | | |
 | Best Practices | | | |
 | SEO | | | |
 
-## Obtenir un rapport PageSpeed
+## Get a PageSpeed Report
 
-**Méthode automatique (Lighthouse CLI):**
+**Automatic method (Lighthouse CLI):**
 
-Si Chrome n'est pas installé, installer d'abord:
+If Chrome is not installed, install first:
 ```bash
 npx @puppeteer/browsers install chrome@stable
 ```
 
-Puis lancer l'audit:
+Then run the audit:
 ```bash
 CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
 npx lighthouse https://example.com --output=json --output-path=./report.json --chrome-flags="--headless --no-sandbox"
 ```
 
-**Méthode manuelle (si rate-limité):**
+**Manual method (if rate-limited):**
 
-Demander à l'utilisateur de fournir les scores depuis https://pagespeed.web.dev :
+Ask the user to provide scores from https://pagespeed.web.dev:
 ```
-Quels sont vos scores PageSpeed actuels ?
+What are your current PageSpeed scores?
 Format: Performance: XX, Accessibility: XX, Best Practices: XX, SEO: XX
 ```
 
@@ -70,7 +70,9 @@ Format: Performance: XX, Accessibility: XX, Best Practices: XX, SEO: XX
 3. **Detect framework** from project files:
    - `composer.json` + `vite.config.js` → Laravel + Vite → use [laravel-patterns.md](laravel-patterns.md)
    - `package.json` with `react` + `vite` → React + Vite → use [react-patterns.md](react-patterns.md)
-   - `next.config.js` → Next.js → use [nextjs-patterns.md](nextjs-patterns.md)
+   - `next.config.js` or `next.config.ts` → Next.js → use [nextjs-patterns.md](nextjs-patterns.md)
+   - `nuxt.config.ts` or `nuxt.config.js` → Nuxt 3 → use [vue-nuxt-patterns.md](vue-nuxt-patterns.md)
+   - `wp-config.php` or `style.css` with Theme → WordPress → use [wordpress-patterns.md](wordpress-patterns.md) *(Coming Soon)*
 
 4. **Categorize issues** by score impact:
    | Priority | Impact | Examples |
@@ -204,6 +206,21 @@ Detailed implementation patterns for each framework:
 | Laravel + Vite + Alpine | [laravel-patterns.md](laravel-patterns.md) | Blade, middleware, Vite config |
 | React + Vite | [react-patterns.md](react-patterns.md) | Components, lazy loading, hooks |
 | Next.js | [nextjs-patterns.md](nextjs-patterns.md) | App router, Image component, metadata |
+| Vue 3 + Nuxt 3 | [vue-nuxt-patterns.md](vue-nuxt-patterns.md) | SSR, @nuxt/image, composables |
+| WordPress | [wordpress-patterns.md](wordpress-patterns.md) | *Coming Soon* |
+
+## Optimization Guides
+
+Specialized optimization topics:
+
+| Topic | File | Content |
+|-------|------|---------|
+| Image Optimization | [images-optimization.md](images-optimization.md) | WebP/AVIF, srcset, compression tools |
+| Advanced Optimization | [advanced-optimization.md](advanced-optimization.md) | Database, PWA, local caching |
+
+## Real-World Examples
+
+See [EXAMPLES.md](EXAMPLES.md) for case studies with before/after scores.
 
 ## Troubleshooting
 

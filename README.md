@@ -1,12 +1,16 @@
 # PageSpeed Optimizer
 
-Skill pour atteindre 100% sur les 4 catégories Google PageSpeed Insights.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-purple.svg)](https://docs.anthropic.com/en/docs/claude-code)
+[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)](CHANGELOG.md)
+
+A Claude Code skill to achieve 100% on all 4 Google PageSpeed Insights categories.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                   PageSpeed 100%                        │
 ├──────────────┬──────────────┬─────────────┬────────────┤
-│ Performance  │Accessibilité │Best Practices│    SEO    │
+│ Performance  │Accessibility │Best Practices│    SEO    │
 │  LCP < 2.5s  │    WCAG      │  Security   │   Meta    │
 │  FCP < 1.8s  │    ARIA      │  Headers    │  Schema   │
 │  CLS < 0.1   │  Contrast    │   HTTPS     │ Canonical │
@@ -14,83 +18,86 @@ Skill pour atteindre 100% sur les 4 catégories Google PageSpeed Insights.
 └──────────────┴──────────────┴─────────────┴────────────┘
 ```
 
-## Comment ça marche
+## Features
 
-Ce skill est un **Claude Code Skill** - une extension qui ajoute des connaissances et méthodologies spécialisées. Quand invoqué, il:
+- **Framework Detection** - Automatically detects your project stack and applies relevant patterns
+- **Complete Workflow** - Analyze, Fix, and Verify in a structured approach
+- **Real Code Examples** - Copy-paste ready solutions for each framework
+- **Prioritized Fixes** - Focus on high-impact optimizations first
 
-1. **Détecte automatiquement** le framework du projet (Laravel, React, Next.js)
-2. **Analyse** le rapport PageSpeed ou l'URL fournie
-3. **Applique** les patterns d'optimisation appropriés
-4. **Vérifie** les corrections
+## Supported Frameworks
 
-## Utilisation
+| Framework | Status | Patterns File |
+|-----------|--------|---------------|
+| Laravel + Vite + Alpine.js | ✅ Ready | [laravel-patterns.md](laravel-patterns.md) |
+| React + Vite | ✅ Ready | [react-patterns.md](react-patterns.md) |
+| Next.js (App Router) | ✅ Ready | [nextjs-patterns.md](nextjs-patterns.md) |
+| Vue 3 + Nuxt 3 | ✅ Ready | [vue-nuxt-patterns.md](vue-nuxt-patterns.md) |
+| WordPress | 🚧 Coming Soon | [wordpress-patterns.md](wordpress-patterns.md) |
 
-### Invocation manuelle (slash command)
+## Optimization Modules
+
+| Module | Description | Guide |
+|--------|-------------|-------|
+| **Images** | WebP/AVIF conversion, srcset, compression | [images-optimization.md](images-optimization.md) |
+| **Advanced** | Database queries, PWA, local caching | [advanced-optimization.md](advanced-optimization.md) |
+| **Troubleshooting** | Common issues and solutions | [troubleshooting.md](troubleshooting.md) |
+
+## Installation
+
+### Prerequisites
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+
+### Install the Skill
 
 ```bash
-# Analyser une URL
+git clone https://github.com/anthropics/pagespeed-optimizer.git \
+  ~/.claude/skills/pagespeed-optimizer
+```
+
+The skill is available immediately in all Claude Code sessions.
+
+## Usage
+
+### Slash Command
+
+```bash
+# Analyze a URL
 /pagespeed-optimizer https://example.com
 
-# Analyser un rapport JSON exporté
+# Analyze an exported JSON report
 /pagespeed-optimizer ./pagespeed-report.json
 
-# Audit complet du projet
+# Full project audit
 /pagespeed-optimizer --audit
 
-# Corriger une catégorie spécifique
+# Fix a specific category
 /pagespeed-optimizer --fix performance
 /pagespeed-optimizer --fix accessibility
 ```
 
-### Invocation automatique
+### Natural Language
 
-Le skill s'active automatiquement quand vous mentionnez:
+The skill activates automatically when you mention:
+
 - "PageSpeed", "Core Web Vitals", "LCP", "FCP", "CLS"
-- "optimiser les performances", "améliorer le score"
-- "accessibilité WCAG", "security headers"
+- "optimize performance", "improve score"
+- "WCAG accessibility", "security headers"
 
-### Exemples de prompts
-
-```
-"Mon site a un LCP de 4.5s, aide-moi à l'optimiser"
-
-"Voici mon rapport PageSpeed, corrige les problèmes d'accessibilité"
-
-"Ajoute les security headers manquants pour Best Practices"
-
-"Optimise ce projet Laravel pour PageSpeed 100%"
-```
-
-## Structure des fichiers
+### Example Prompts
 
 ```
-pagespeed-optimizer/
-├── SKILL.md              # Définition du skill et méthodologie principale
-├── laravel-patterns.md   # Patterns Laravel + Vite + Alpine.js
-├── react-patterns.md     # Patterns React + Vite
-├── nextjs-patterns.md    # Patterns Next.js (App Router)
-├── troubleshooting.md    # Solutions aux problèmes courants
-├── README.md             # Ce fichier
-└── LICENSE               # MIT
+"My site has an LCP of 4.5s, help me optimize it"
+
+"Here's my PageSpeed report, fix the accessibility issues"
+
+"Add the missing security headers for Best Practices"
+
+"Optimize this Laravel project for PageSpeed 100%"
 ```
 
-### Contenu des fichiers
-
-| Fichier | Rôle |
-|---------|------|
-| `SKILL.md` | Point d'entrée, workflow en 3 étapes, checklist, patterns essentiels |
-| `*-patterns.md` | Code prêt à l'emploi pour chaque framework |
-| `troubleshooting.md` | Diagnostic et solutions par message d'erreur PageSpeed |
-
-## Frameworks supportés
-
-| Framework | Fichier | Particularités |
-|-----------|---------|----------------|
-| Laravel + Vite | [laravel-patterns.md](laravel-patterns.md) | Blade, middleware PHP, Alpine.js |
-| React + Vite | [react-patterns.md](react-patterns.md) | Components, lazy loading, hooks |
-| Next.js | [nextjs-patterns.md](nextjs-patterns.md) | App Router, Image, metadata API |
-
-## Workflow du skill
+## Workflow
 
 ```
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
@@ -103,62 +110,104 @@ pagespeed-optimizer/
 └──────────────┘     └──────────────┘     └──────────────┘
 ```
 
-### Priorités d'optimisation
+### Priority System
 
-| Priorité | Impact | Exemples |
+| Priority | Impact | Examples |
 |----------|--------|----------|
-| CRITICAL | >10 pts | Image LCP, ressources bloquantes |
-| HIGH | 5-10 pts | Images non optimisées, preconnect manquant |
+| CRITICAL | >10 pts | LCP image, render-blocking resources |
+| HIGH | 5-10 pts | Unoptimized images, missing preconnect |
 | MEDIUM | 2-5 pts | Cache headers, resource hints |
-| LOW | <2 pts | Optimisations mineures |
+| LOW | <2 pts | Minor optimizations |
 
-## Fonctionnalités avancées
+## Target Metrics
 
-### Détection automatique du contexte
-
-Le skill exécute automatiquement ces commandes au démarrage pour détecter le framework:
-
-```bash
-cat package.json    # Dépendances npm
-cat composer.json   # Dépendances PHP
-ls vite.config.*    # Configuration build
-```
-
-### Outils autorisés
-
-Le skill a accès à ces outils sans demander permission:
-- `Read`, `Write`, `Edit` - Modification des fichiers
-- `Bash` - Commandes de build et diagnostic
-- `Grep`, `Glob` - Recherche dans le code
-- `WebFetch` - Récupération des rapports PageSpeed
-
-## Installation
-
-### Prérequis
-
-Ce skill nécessite [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installé.
-
-### Installation
-
-```bash
-# Cloner dans le dossier skills
-git clone https://github.com/suissetalentch/pagespeed-optimizer.git \
-  ~/.claude/skills/pagespeed-optimizer
-```
-
-Le skill sera disponible immédiatement dans toutes vos sessions Claude Code.
-
-## Métriques cibles
-
-| Métrique | Cible | Impact |
-|----------|-------|--------|
+| Metric | Target | Category |
+|--------|--------|----------|
 | LCP (Largest Contentful Paint) | < 2.5s | Performance |
 | FCP (First Contentful Paint) | < 1.8s | Performance |
 | CLS (Cumulative Layout Shift) | < 0.1 | Performance |
 | TBT (Total Blocking Time) | < 200ms | Performance |
-| Contrast Ratio | 4.5:1 (text) | Accessibilité |
+| Contrast Ratio | 4.5:1 (text) | Accessibility |
 | Security Headers | 6 headers | Best Practices |
 
-## Licence
+## Real-World Example
 
-MIT - Baptiste Chevassut
+See [EXAMPLES.md](EXAMPLES.md) for a complete case study showing how we achieved 100% on all categories for a real website.
+
+**Quick summary:**
+- Site: physio.chevassut.ch
+- Before: Performance 98, Accessibility 94
+- After: All categories at 100%
+- Key fixes: Color contrast, touch target sizes
+
+## File Structure
+
+```
+pagespeed-optimizer/
+├── SKILL.md                    # Main skill definition
+├── README.md                   # This file
+├── LICENSE                     # MIT License
+├── .gitignore
+│
+├── # Framework Patterns
+├── laravel-patterns.md         # Laravel + Vite + Alpine.js
+├── react-patterns.md           # React + Vite
+├── nextjs-patterns.md          # Next.js (App Router)
+├── vue-nuxt-patterns.md        # Vue 3 + Nuxt 3
+├── wordpress-patterns.md       # WordPress (Coming Soon)
+│
+├── # Optimization Guides
+├── images-optimization.md      # Image formats and tools
+├── advanced-optimization.md    # Database, PWA, caching
+├── troubleshooting.md          # Common issues
+│
+└── EXAMPLES.md                 # Real-world case studies
+```
+
+## Tools Used
+
+The skill has access to these tools without requiring permission:
+
+- `Read`, `Write`, `Edit` - File modification
+- `Bash` - Build commands and diagnostics
+- `Grep`, `Glob` - Code search
+- `WebFetch` - Retrieve PageSpeed reports
+
+## Running Lighthouse Locally
+
+```bash
+# Install Chrome if needed
+npx @puppeteer/browsers install chrome@stable
+
+# Run audit
+CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
+npx lighthouse https://example.com \
+  --output=json \
+  --output-path=./report.json \
+  --chrome-flags="--headless --no-sandbox"
+```
+
+## Contributing
+
+Contributions are welcome! Here's how you can help:
+
+1. **Add a framework** - Create a new `*-patterns.md` file following the existing format
+2. **Share a case study** - Add your success story to `EXAMPLES.md`
+3. **Improve documentation** - Fix typos, add examples, clarify instructions
+4. **Report issues** - Open an issue for bugs or feature requests
+
+### How to Contribute
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-framework`)
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+MIT - See [LICENSE](LICENSE) for details.
+
+---
+
+**Author:** Baptiste Chevassut
+**Repository:** [github.com/anthropics/pagespeed-optimizer](https://github.com/anthropics/pagespeed-optimizer)
