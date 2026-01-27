@@ -105,7 +105,7 @@ npx lighthouse URL --output=json --output-path=./desktop.json --preset=desktop -
    - `package.json` with `react` + `vite` → React + Vite → use [react-patterns.md](react-patterns.md)
    - `next.config.js` or `next.config.ts` → Next.js → use [nextjs-patterns.md](nextjs-patterns.md)
    - `nuxt.config.ts` or `nuxt.config.js` → Nuxt 3 → use [vue-nuxt-patterns.md](vue-nuxt-patterns.md)
-   - `wp-config.php` or `style.css` with Theme → WordPress → use [wordpress-patterns.md](wordpress-patterns.md) *(Coming Soon)*
+   - `wp-config.php` or `style.css` with Theme → WordPress → use [wordpress-patterns.md](wordpress-patterns.md) **+ WordPress Safe Mode**
 
 4. **Categorize issues** by score impact:
    | Priority | Impact | Examples |
@@ -114,6 +114,8 @@ npx lighthouse URL --output=json --output-path=./desktop.json --preset=desktop -
    | HIGH | 5-10 pts | Unoptimized images, missing preconnect |
    | MEDIUM | 2-5 pts | Cache headers, resource hints |
    | LOW | <2 pts | Minor optimizations |
+
+5. **If WordPress detected:** Follow WordPress Safe Mode (see below)
 
 ## Safety Checklist (No Breaking Changes)
 
@@ -276,7 +278,181 @@ Detailed implementation patterns for each framework:
 | React + Vite | [react-patterns.md](react-patterns.md) | Components, lazy loading, hooks |
 | Next.js | [nextjs-patterns.md](nextjs-patterns.md) | App router, Image component, metadata |
 | Vue 3 + Nuxt 3 | [vue-nuxt-patterns.md](vue-nuxt-patterns.md) | SSR, @nuxt/image, composables |
-| WordPress | [wordpress-patterns.md](wordpress-patterns.md) | *Coming Soon* |
+| WordPress | [wordpress-patterns.md](wordpress-patterns.md) | Safe Mode, plugins, .htaccess |
+
+---
+
+## WordPress Safe Mode
+
+WordPress requires special handling due to live changes and lack of version control.
+
+### WordPress Detection
+
+If any of these are detected, activate WordPress Safe Mode:
+- `wp-config.php` file present
+- `/wp-admin` URL mentioned
+- `style.css` with `Theme Name:` header
+- User mentions WordPress, WooCommerce, or common WP plugins
+
+### Step 1: Determine Access Level
+
+**Ask the user:**
+
+1. Do you have FTP/SFTP access to upload files?
+2. Do you have SSH access (can run `wp` CLI commands)?
+3. Do you have database access (phpMyAdmin)?
+4. **Do you have a current backup of your site?**
+
+### Step 2: Safety Mode Based on Access
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  WORDPRESS SAFE MODE                                     │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  1. DETECT      2. ASSESS       3. RECOMMEND             │
+│  ──────────     ──────────      ────────────             │
+│  • wp-config?   • Backup?       • Plugins first          │
+│  • Access level • FTP/SSH?      • .htaccess safe         │
+│  • Audit only   • DB access?    • Manual instructions    │
+│                                                          │
+│  4. VERIFY (User applies changes)                        │
+│  ─────────────────────────────────                       │
+│  • User makes changes manually or approves               │
+│  • Re-run PageSpeed                                      │
+│  • Confirm no breakage                                   │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+```
+
+**WITHOUT confirmed backup:**
+- ONLY provide audit results and recommendations
+- NO file modifications at all
+- Guide user to create backup first (see [wordpress-patterns.md](wordpress-patterns.md))
+
+**WITH backup + Admin only (no FTP):**
+- Plugin recommendations only
+- Configuration instructions for plugins
+- No code changes possible
+
+**WITH backup + FTP only:**
+- `.htaccess` modifications (show diff first, require approval)
+- Plugin recommendations
+- Manual copy-paste instructions for functions.php
+- Child theme setup instructions
+
+**WITH backup + SSH:**
+- Can use `wp-cli` commands for safer operations
+- Still prefer plugin solutions over code
+- Code changes require explicit user approval
+
+### Step 3: Plugin-First Approach
+
+**Always recommend plugins before code changes:**
+- Plugins can be disabled via Admin panel
+- Users can manage without technical knowledge
+- Less risk of conflicts with updates
+- Easier rollback
+
+See [wordpress-patterns.md](wordpress-patterns.md) for plugin recommendations.
+
+### WordPress Safety Rules
+
+#### NEVER Do (Even With User Approval)
+
+| Action | Reason |
+|--------|--------|
+| Modify `wp-config.php` | Critical file - can break entire site |
+| Modify parent theme files | Updates will overwrite changes |
+| Modify plugin files | Updates will overwrite changes |
+| Modify core WordPress files | Never touch core |
+| Run database queries directly | High risk of data loss |
+| Delete any files | No automatic recovery |
+
+#### Safe to Do (With Backup Confirmation)
+
+| Action | Requirement |
+|--------|-------------|
+| Read files for analysis | Always safe |
+| Create new files in child theme | Backup confirmed |
+| Modify `.htaccess` | Show diff preview + user approval |
+| Add code to child theme's `functions.php` | Backup confirmed + user approval |
+| Use `wp-cli` for non-destructive commands | SSH access + backup confirmed |
+
+#### Always Ask First
+
+Before any modification:
+
+1. "Do you have a current backup of your WordPress site?"
+2. "What level of access do you have? (Admin only / FTP / SSH)"
+3. "Would you prefer I show you the changes to apply manually, or should I apply them directly?"
+
+### WordPress Modification Workflow
+
+When user requests a change that requires file modification:
+
+```
+1. Confirm backup exists
+   └─ No backup → STOP, provide backup instructions first
+
+2. Identify file to modify
+   └─ Core/Plugin/Parent theme → REFUSE, explain why
+
+3. Show proposed change
+   └─ Display diff preview of changes
+
+4. Get explicit approval
+   └─ User must confirm: "Yes, apply this change"
+
+5. Apply change
+   └─ Make the modification
+
+6. Verify
+   └─ Ask user to test site immediately
+```
+
+### Example WordPress Interaction
+
+```
+User: My WordPress site has slow PageSpeed scores
+
+Claude: I'll help optimize your WordPress site. First, I need to understand your setup:
+
+1. Do you have FTP/SFTP access to your site?
+2. Do you have SSH access (can you run wp-cli commands)?
+3. Do you have a current backup of your site?
+
+[User responds: FTP only, no backup]
+
+Claude: Before we make any changes, you'll need a backup. Here's how:
+
+Option A - Plugin (easiest):
+1. Install UpdraftPlus from Plugins > Add New
+2. Go to Settings > UpdraftPlus
+3. Click "Backup Now"
+4. Download the backup files
+
+Option B - Manual via FTP:
+1. Download your entire wp-content folder
+2. Export database via phpMyAdmin
+
+Let me know when your backup is complete.
+
+[User confirms backup]
+
+Claude: Now I can safely help. Based on your PageSpeed issues:
+
+**Recommended plugins (safest approach):**
+- WP Super Cache - for page caching
+- ShortPixel - for image optimization
+- Autoptimize - for CSS/JS minification
+
+**If you want better cache headers**, I can show you .htaccess
+changes to apply manually. Would you like me to generate the
+code for you to copy-paste?
+```
+
+---
 
 ## Optimization Guides
 
