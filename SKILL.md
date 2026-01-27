@@ -15,6 +15,36 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 - composer.json: !`cat composer.json 2>/dev/null | head -20 || echo "Not found"`
 - Framework config: !`ls -la vite.config.* next.config.* nuxt.config.* webpack.config.* 2>/dev/null || echo "No config found"`
 
+## Scores (à remplir)
+
+| Catégorie | Avant | Après | Δ |
+|-----------|-------|-------|---|
+| Performance | | | |
+| Accessibility | | | |
+| Best Practices | | | |
+| SEO | | | |
+
+## Obtenir un rapport PageSpeed
+
+> L'API PageSpeed a des limites de requêtes. Utilisez une de ces méthodes:
+
+**Option 1: Lighthouse CLI (recommandé)**
+```bash
+npx lighthouse https://example.com --output=json --output-path=./report.json
+npx lighthouse https://example.com --output=html --view  # Ouvre dans navigateur
+```
+
+**Option 2: Chrome DevTools**
+1. Ouvrir Chrome → F12 → Onglet "Lighthouse"
+2. Cliquer "Analyze page load"
+3. Menu ⋮ → "Save as JSON"
+
+**Option 3: Scores manuels**
+Aller sur pagespeed.web.dev, copier les 4 scores:
+```
+"Performance: 65, Accessibility: 82, Best Practices: 78, SEO: 90"
+```
+
 ## Workflow
 
 ```
@@ -30,12 +60,10 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 
 ### Step 1: Analyze
 
-1. **If URL provided:** Fetch PageSpeed report via WebFetch
-   ```
-   https://pagespeed.web.dev/analysis?url={URL}
-   ```
+1. **Obtenir les scores initiaux** (voir section "Obtenir un rapport" ci-dessus)
+   - Remplir le tableau "Scores - Avant"
 
-2. **If report file provided:** Read and parse the JSON/text report
+2. **Si fichier JSON fourni:** Lire et parser le rapport Lighthouse
 
 3. **Detect framework** from project files:
    - `composer.json` + `vite.config.js` → Laravel + Vite → use [laravel-patterns.md](laravel-patterns.md)
