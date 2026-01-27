@@ -313,6 +313,89 @@ curl https://example.com/robots.txt
 
 ---
 
+## Breaking Changes Prevention
+
+### CSS Changes - Common Pitfalls
+
+| Change | Risk | Safe Alternative |
+|--------|------|------------------|
+| Remove unused CSS | May remove dynamically used classes | Test all pages/states first |
+| Change font-display | FOUT/FOIT appearance | Use `font-display: swap` (safest) |
+| Inline critical CSS | CSS specificity issues | Test all components |
+| Purge CSS (Tailwind) | Remove dynamic classes | Safelist dynamic patterns |
+| Change z-index | Modal/dropdown layering breaks | Test all overlays |
+
+### JavaScript Changes - Common Pitfalls
+
+| Change | Risk | Safe Alternative |
+|--------|------|------------------|
+| Add `defer` to scripts | Script order/dependency issues | Test all page interactions |
+| Add `async` to scripts | Race conditions | Only for truly independent scripts |
+| Remove console.log | May affect debugging | Use build tool to strip (esbuild drop) |
+| Code splitting | Missing chunks on some routes | Test all routes after build |
+| Lazy load components | Flash of loading state | Add proper loading skeletons |
+
+### Image Changes - Common Pitfalls
+
+| Change | Risk | Safe Alternative |
+|--------|------|------------------|
+| Convert to WebP | Quality loss | Use quality 80+ |
+| Resize images | Wrong aspect ratio | Always maintain aspect ratio |
+| Lazy load all images | LCP image lazy loaded | Keep LCP image eager |
+| Remove images | Break layout | Keep placeholders |
+
+### Quick Rollback Checklist
+
+If something breaks after optimization:
+
+1. **Identify the problem:**
+   ```bash
+   git diff  # See what changed
+   ```
+
+2. **Quick revert options:**
+   ```bash
+   # Revert all changes
+   git checkout .
+
+   # Or stash changes to review later
+   git stash
+
+   # Or revert specific file
+   git checkout -- path/to/file
+   ```
+
+3. **Targeted fix:**
+   - Identify which specific change caused the issue
+   - Revert only that change
+   - Re-apply fix with more caution
+
+4. **Test before committing:**
+   - Always run `npm run build`
+   - Check browser console for errors
+   - Test on multiple screen sizes
+
+### Safe Optimization Order
+
+Apply optimizations in this order (lowest to highest risk):
+
+1. **Low Risk** (usually safe):
+   - Add preconnect/preload hints
+   - Add width/height to images
+   - Add aria-labels to buttons
+   - Add meta descriptions
+
+2. **Medium Risk** (test after each):
+   - Font loading changes
+   - Image format conversion
+   - Security headers
+
+3. **High Risk** (test thoroughly):
+   - JavaScript defer/async
+   - CSS purging
+   - Code splitting
+   - Major layout changes
+
 ## Before Deploying Checklist
 
 - [ ] `npm run build` completed successfully
@@ -324,3 +407,4 @@ curl https://example.com/robots.txt
 - [ ] robots.txt accessible
 - [ ] sitemap.xml generated
 - [ ] Run `php artisan optimize` (Laravel)
+- [ ] Test Mobile AND Desktop PageSpeed (both 95+)

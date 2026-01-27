@@ -16,20 +16,29 @@ A physiotherapy clinic website optimized to achieve perfect PageSpeed scores.
 
 ### Initial Audit
 
-Run Lighthouse audit:
+Run Lighthouse audits for BOTH Mobile and Desktop:
 
 ```bash
-npx lighthouse https://physio.chevassut.ch --output=json --output-path=./report.json
+# Install Chrome if needed
+npx @puppeteer/browsers install chrome@stable
+
+# Mobile audit
+CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
+npx lighthouse https://physio.chevassut.ch --output=json --output-path=./mobile.json --chrome-flags="--headless --no-sandbox"
+
+# Desktop audit
+CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
+npx lighthouse https://physio.chevassut.ch --output=json --output-path=./desktop.json --preset=desktop --chrome-flags="--headless --no-sandbox"
 ```
 
 #### Before Optimization
 
-| Category | Score |
-|----------|-------|
-| Performance | 98 |
-| Accessibility | 94 |
-| Best Practices | 100 |
-| SEO | 100 |
+| Category | Mobile | Desktop |
+|----------|--------|---------|
+| Performance | 98 | 99 |
+| Accessibility | 94 | 94 |
+| Best Practices | 100 | 100 |
+| SEO | 100 | 100 |
 
 ### Issues Identified
 
@@ -158,12 +167,19 @@ build: {
 
 ### After Optimization
 
-| Category | Score | Change |
-|----------|-------|--------|
-| Performance | 100 | +2 |
-| Accessibility | 100 | +6 |
-| Best Practices | 100 | - |
-| SEO | 100 | - |
+| Category | Mobile | Desktop | Status |
+|----------|--------|---------|--------|
+| Performance | 100 | 100 | ✅ |
+| Accessibility | 100 | 100 | ✅ |
+| Best Practices | 100 | 100 | ✅ |
+| SEO | 100 | 100 | ✅ |
+
+**Overall: ✅ PASSED** - All scores 95+ on Mobile AND Desktop
+
+### Changes Applied
+
+1. Color contrast fix for carousel dots - `resources/css/components/carousel.css`
+2. Touch target size increase (44x44px) - `resources/css/components/carousel.css`
 
 ### Verification
 
@@ -215,25 +231,40 @@ npx lighthouse https://physio.chevassut.ch --output=json
 npx @puppeteer/browsers install chrome@stable
 ```
 
-### Step 2: Run Lighthouse
+### Step 2: Run Lighthouse (Mobile AND Desktop)
 
 ```bash
-CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
+# Set Chrome path
+export CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1)
+
+# Mobile audit (default, more strict)
 npx lighthouse https://your-site.com \
   --output=json \
-  --output-path=./report.json \
+  --output-path=./mobile.json \
+  --chrome-flags="--headless --no-sandbox"
+
+# Desktop audit
+npx lighthouse https://your-site.com \
+  --output=json \
+  --output-path=./desktop.json \
+  --preset=desktop \
   --chrome-flags="--headless --no-sandbox"
 ```
 
 ### Step 3: Analyze with PageSpeed Optimizer
 
 ```
-/pagespeed-optimizer ./report.json
+/pagespeed-optimizer ./mobile.json
+/pagespeed-optimizer ./desktop.json
 ```
 
 ### Step 4: Apply Fixes and Re-test
 
-Build, deploy, and run the audit again to verify improvements.
+1. Apply fixes (see Safety Checklist first!)
+2. Build: `npm run build`
+3. Deploy or test locally
+4. Re-run BOTH audits
+5. Verify all scores 95+ on Mobile AND Desktop
 
 ---
 

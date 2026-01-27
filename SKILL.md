@@ -17,12 +17,23 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 
 ## Scores
 
-| Category | Before | After | Δ |
-|----------|--------|-------|---|
+| Category | Mobile | Desktop | Status |
+|----------|--------|---------|--------|
 | Performance | | | |
 | Accessibility | | | |
 | Best Practices | | | |
 | SEO | | | |
+
+## Score Interpretation
+
+| Score | Status | Action |
+|-------|--------|--------|
+| 95-100 | ✅ Excellent | Goal achieved |
+| 90-94 | 🟡 Good | Minor improvements possible |
+| 50-89 | 🟠 Needs Work | Significant issues to fix |
+| 0-49 | 🔴 Poor | Critical problems |
+
+**Minimum Target:** 95+ on all 4 categories (Mobile AND Desktop)
 
 ## Get a PageSpeed Report
 
@@ -47,6 +58,28 @@ What are your current PageSpeed scores?
 Format: Performance: XX, Accessibility: XX, Best Practices: XX, SEO: XX
 ```
 
+## Mobile & Desktop Testing
+
+**IMPORTANT:** Always test BOTH mobile and desktop.
+
+### Run Both Audits
+
+```bash
+# Mobile (default - more strict)
+CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
+npx lighthouse URL --output=json --output-path=./mobile.json --chrome-flags="--headless --no-sandbox"
+
+# Desktop
+CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
+npx lighthouse URL --output=json --output-path=./desktop.json --preset=desktop --chrome-flags="--headless --no-sandbox"
+```
+
+**Note:** Mobile scores are typically lower due to:
+- Simulated 4G throttling (slower network)
+- Smaller viewport (320px width)
+- Touch target requirements (minimum 44x44px)
+- More aggressive CPU throttling
+
 ## Workflow
 
 ```
@@ -62,10 +95,10 @@ Format: Performance: XX, Accessibility: XX, Best Practices: XX, SEO: XX
 
 ### Step 1: Analyze
 
-1. **Obtenir les scores initiaux** (voir section "Obtenir un rapport" ci-dessus)
-   - Remplir le tableau "Scores - Avant"
+1. **Get initial scores** (see "Get a PageSpeed Report" section above)
+   - Fill in the Scores table with "Before" values for Mobile AND Desktop
 
-2. **Si fichier JSON fourni:** Lire et parser le rapport Lighthouse
+2. **If JSON file provided:** Read and parse the Lighthouse report
 
 3. **Detect framework** from project files:
    - `composer.json` + `vite.config.js` → Laravel + Vite → use [laravel-patterns.md](laravel-patterns.md)
@@ -81,6 +114,35 @@ Format: Performance: XX, Accessibility: XX, Best Practices: XX, SEO: XX
    | HIGH | 5-10 pts | Unoptimized images, missing preconnect |
    | MEDIUM | 2-5 pts | Cache headers, resource hints |
    | LOW | <2 pts | Minor optimizations |
+
+## Safety Checklist (No Breaking Changes)
+
+Before applying ANY fix, verify:
+
+### Pre-Fix Verification
+- [ ] Site loads correctly in browser
+- [ ] All interactive elements work (forms, buttons, navigation)
+- [ ] No console errors
+- [ ] Take screenshots of key pages (or remember current state)
+
+### Post-Fix Verification
+- [ ] Site still loads correctly
+- [ ] All interactive elements still work
+- [ ] No new console errors
+- [ ] Visual comparison with screenshots
+- [ ] Run `npm run build` without errors
+
+### High-Risk Changes (Extra Care)
+
+| Change Type | Risk | Verification |
+|-------------|------|--------------|
+| CSS modifications | Layout breaks | Visual check all breakpoints |
+| JS defer/async | Functionality breaks | Test all interactions |
+| Font changes | FOUT/FOIT | Check text rendering |
+| Image optimization | Quality loss | Visual comparison |
+| Security headers | API/iframe breaks | Test all integrations |
+
+See [troubleshooting.md](troubleshooting.md) for rollback procedures.
 
 ### Step 2: Fix (by category)
 
@@ -177,25 +239,32 @@ $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeS
 
 After applying fixes:
 1. Run production build: `npm run build`
-2. Test locally or deploy
-3. Re-run PageSpeed Insights
-4. Confirm all 4 categories at 100%
+2. Verify no breaking changes (see Safety Checklist)
+3. Test locally or deploy
+4. Re-run PageSpeed for BOTH Mobile AND Desktop
+5. Confirm all 4 categories at 95+ minimum (target: 100)
+6. Fill in "Final Results" section
 
 ## Execution Checklist
 
 | # | Task | Category | Status |
 |---|------|----------|--------|
-| 1 | Analyze report, identify stack | Setup | [ ] |
-| 2 | Font loading (preconnect, preload, swap) | Performance | [ ] |
-| 3 | LCP image optimization | Performance | [ ] |
-| 4 | Image dimensions (width/height) | Performance/CLS | [ ] |
-| 5 | Code splitting, defer scripts | Performance | [ ] |
-| 6 | Form autocomplete attributes | Accessibility | [ ] |
-| 7 | Button/link aria-labels | Accessibility | [ ] |
-| 8 | Color contrast fixes | Accessibility | [ ] |
-| 9 | Security headers middleware | Best Practices | [ ] |
-| 10 | Meta tags, canonical URL | SEO | [ ] |
-| 11 | Production build + test | Verify | [ ] |
+| 1 | Run Mobile + Desktop audits | Setup | [ ] |
+| 2 | Analyze reports, identify stack | Setup | [ ] |
+| 3 | Pre-fix verification (Safety Checklist) | Safety | [ ] |
+| 4 | Font loading (preconnect, preload, swap) | Performance | [ ] |
+| 5 | LCP image optimization | Performance | [ ] |
+| 6 | Image dimensions (width/height) | Performance/CLS | [ ] |
+| 7 | Code splitting, defer scripts | Performance | [ ] |
+| 8 | Form autocomplete attributes | Accessibility | [ ] |
+| 9 | Button/link aria-labels | Accessibility | [ ] |
+| 10 | Color contrast fixes | Accessibility | [ ] |
+| 11 | Touch targets (44x44px minimum) | Accessibility | [ ] |
+| 12 | Security headers middleware | Best Practices | [ ] |
+| 13 | Meta tags, canonical URL | SEO | [ ] |
+| 14 | Post-fix verification (Safety Checklist) | Safety | [ ] |
+| 15 | Production build + re-test Mobile/Desktop | Verify | [ ] |
+| 16 | Fill Final Results (95+ = ✅ PASSED) | Complete | [ ] |
 
 ## Framework Patterns
 
@@ -240,3 +309,35 @@ grep -r "console.log" resources/js/ src/ 2>/dev/null
 # Security headers test
 curl -I https://example.com 2>/dev/null | grep -i "x-\|content-security\|strict"
 ```
+
+## Final Results
+
+After all optimizations, present results clearly:
+
+### Results Summary
+
+| Category | Mobile | Desktop | Status |
+|----------|--------|---------|--------|
+| Performance | XX | XX | ✅/🟡/🔴 |
+| Accessibility | XX | XX | ✅/🟡/🔴 |
+| Best Practices | XX | XX | ✅/🟡/🔴 |
+| SEO | XX | XX | ✅/🟡/🔴 |
+
+### Overall Status
+
+| Status | Criteria |
+|--------|----------|
+| ✅ **PASSED** | All scores 95+ on both Mobile and Desktop |
+| 🟡 **ACCEPTABLE** | All scores 90+ but some below 95 |
+| 🔴 **NEEDS MORE WORK** | Any score below 90 |
+
+### Changes Applied
+
+List each fix with the file modified:
+1. [Fix description] - `path/to/file`
+2. ...
+
+### Remaining Issues (if any)
+
+Document issues that couldn't be fixed and explain why:
+- [Issue] - [Reason / Limitation]
