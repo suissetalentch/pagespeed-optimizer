@@ -26,24 +26,28 @@ allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 
 ## Obtenir un rapport PageSpeed
 
-> L'API PageSpeed a des limites de requêtes. Utilisez une de ces méthodes:
+> L'API PageSpeed est rate-limitée. Utilisez une de ces méthodes:
 
-**Option 1: Lighthouse CLI (recommandé)**
+**Option 1: Depuis pagespeed.web.dev (le plus simple)**
+1. Aller sur https://pagespeed.web.dev et lancer l'analyse
+2. Une fois terminé, cliquer sur **⋮** (menu 3 points en haut à droite)
+3. Cliquer **"Télécharger le rapport"** → fichier JSON
+4. Fournir le fichier: `/pagespeed-optimizer ./report.json`
+
+Ou simplement copier les 4 scores et les coller:
+```
+Performance: 65, Accessibility: 82, Best Practices: 78, SEO: 90
+```
+
+**Option 2: Lighthouse CLI (local, sans limite)**
 ```bash
 npx lighthouse https://example.com --output=json --output-path=./report.json
 npx lighthouse https://example.com --output=html --view  # Ouvre dans navigateur
 ```
 
-**Option 2: Chrome DevTools**
-1. Ouvrir Chrome → F12 → Onglet "Lighthouse"
-2. Cliquer "Analyze page load"
-3. Menu ⋮ → "Save as JSON"
-
-**Option 3: Scores manuels**
-Aller sur pagespeed.web.dev, copier les 4 scores:
-```
-"Performance: 65, Accessibility: 82, Best Practices: 78, SEO: 90"
-```
+**Option 3: Chrome DevTools**
+1. F12 → Onglet "Lighthouse" → "Analyze page load"
+2. Menu ⋮ → "Save as JSON"
 
 ## Workflow
 
