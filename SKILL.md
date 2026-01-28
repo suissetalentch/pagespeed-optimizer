@@ -1,7 +1,7 @@
 ---
 name: pagespeed-optimizer
 description: Optimize website performance, accessibility, best practices and SEO to achieve 100% PageSpeed scores. Use when user shares a PageSpeed report, asks to improve Core Web Vitals, fix LCP/FCP/CLS issues, or improve website performance.
-argument-hint: [url] | [report.json] | --audit | --fix <category>
+argument-hint: [url] | [report.json] | --audit | --fix <category> | --ralph
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 ---
 
@@ -145,6 +145,69 @@ For quick iteration before running Lighthouse:
 5. Check Network tab waterfall
 
 See [docs/mobile-optimization.md](docs/mobile-optimization.md) for comprehensive mobile optimization strategies.
+
+## Ralph Wiggum Mode (Autonomous Loop)
+
+Run with `--ralph` to enable autonomous optimization loop until all scores reach 95+.
+
+### The Loop
+
+```bash
+while scores < 95:
+    1. Run mobile Lighthouse audit
+    2. Identify highest-impact issue
+    3. Apply fix
+    4. Re-test
+    5. Repeat until 95+ on all categories
+```
+
+### How It Works
+
+- Each iteration starts with fresh context
+- Progress persists in code files, not conversation
+- Backpressure from Lighthouse scores validates fixes
+- Stops when ALL 4 categories reach 95+ (mobile)
+
+### Usage
+
+```bash
+/pagespeed-optimizer --ralph https://example.com
+```
+
+### Loop Workflow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  RALPH WIGGUM MODE                                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐              │
+│  │  AUDIT   │───▶│   FIX    │───▶│  TEST    │──┐           │
+│  │  Mobile  │    │  Top 1   │    │  Score   │  │           │
+│  └──────────┘    └──────────┘    └──────────┘  │           │
+│       ▲                                         │           │
+│       │            < 95?                        │           │
+│       └─────────────────────────────────────────┘           │
+│                                                              │
+│                    ≥ 95? ──▶ ✅ DONE                        │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Exit Conditions
+
+| Condition | Action |
+|-----------|--------|
+| All scores ≥ 95 | ✅ Success - exit loop |
+| No improvement after 3 iterations | ⚠️ Manual intervention needed |
+| Breaking change detected | 🛑 Stop and report |
+
+### Safety Guards
+
+- Max 10 iterations (prevent infinite loops)
+- Pre/post verification on each fix
+- Git commit after each successful fix
+- Rollback on breaking changes
 
 ## Workflow
 

@@ -76,6 +76,9 @@ The skill is available immediately in all Claude Code sessions.
 # Fix a specific category
 /pagespeed-optimizer --fix performance
 /pagespeed-optimizer --fix accessibility
+
+# Autonomous optimization until 95+
+/pagespeed-optimizer --ralph https://example.com
 ```
 
 ### Natural Language
