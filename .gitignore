@@ -43,6 +43,15 @@ coverage/
 dist/
 build/
 
+# Puppeteer/Chrome installation
+chrome/
+
+# Lighthouse reports
+*.json
+mobile.json
+desktop.json
+report.json
+
 # Misc
 *.bak
 *.backup
