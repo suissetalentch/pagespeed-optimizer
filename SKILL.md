@@ -58,27 +58,93 @@ What are your current PageSpeed scores?
 Format: Performance: XX, Accessibility: XX, Best Practices: XX, SEO: XX
 ```
 
-## Mobile & Desktop Testing
+## Mobile-First Methodology
 
-**IMPORTANT:** Always test BOTH mobile and desktop.
+**CRITICAL:** Always test MOBILE FIRST. If mobile passes → Desktop will automatically pass.
 
-### Run Both Audits
+### Why Mobile-First?
+
+Mobile Lighthouse simulates much harsher conditions than real desktop browsing:
+
+| Aspect | Desktop Lighthouse | Mobile Lighthouse |
+|--------|-------------------|-------------------|
+| Network | No throttling | 4G: 1.6 Mbps down, 150ms RTT |
+| CPU | Normal | 4x slowdown |
+| Viewport | 1350x940 | 412x823 |
+| Impact of 500KB image | ~instant | ~2.5s download |
+
+**Key insight:** Optimizing for mobile constraints guarantees desktop will perform even better.
+
+### Mobile-First Workflow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  MOBILE-FIRST METHODOLOGY                                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  1. AUDIT MOBILE    2. FIX FOR MOBILE    3. VERIFY BOTH     │
+│  ──────────────     ────────────────     ──────────────     │
+│  • Test mobile      • Budget: 150KB      • Mobile 95+       │
+│  • Identify LCP     • Images mobile-     • Desktop auto-    │
+│  • Network impact     sized first          passes           │
+│                     • Preload critical                      │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Run Mobile Audit First
 
 ```bash
-# Mobile (default - more strict)
+# Step 1: Mobile audit (ALWAYS first)
 CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
 npx lighthouse URL --output=json --output-path=./mobile.json --chrome-flags="--headless --no-sandbox"
 
-# Desktop
+# Step 2: Desktop audit (only after mobile passes)
 CHROME_PATH=$(find $HOME/.cache/puppeteer -name chrome -type f 2>/dev/null | head -1) \
 npx lighthouse URL --output=json --output-path=./desktop.json --preset=desktop --chrome-flags="--headless --no-sandbox"
 ```
 
-**Note:** Mobile scores are typically lower due to:
-- Simulated 4G throttling (slower network)
-- Smaller viewport (320px width)
-- Touch target requirements (minimum 44x44px)
-- More aggressive CPU throttling
+### Mobile Performance Budget
+
+| Resource | Budget | Calculation |
+|----------|--------|-------------|
+| Total page | < 500KB | Ideal: < 300KB |
+| **LCP image** | **< 100KB** | Critical for 2.5s target |
+| Critical CSS | < 14KB | First TCP packet |
+| JavaScript | < 150KB | Parsed size |
+
+### Key Diagnostic Questions
+
+Before fixing, always identify:
+
+1. **What is the LCP element?** (image/text/video)
+2. **What is its file size?** (must be < 100KB for mobile)
+3. **Is it preloaded with `fetchpriority="high"`?**
+4. **What's blocking FCP?** (fonts/CSS/JS)
+
+```javascript
+// Identify LCP element in DevTools Console
+new PerformanceObserver((list) => {
+  const entries = list.getEntries();
+  const lastEntry = entries[entries.length - 1];
+  console.log('LCP element:', lastEntry.element);
+  console.log('LCP time:', lastEntry.startTime);
+}).observe({type: 'largest-contentful-paint', buffered: true});
+```
+
+### DevTools Mobile Testing
+
+For quick iteration before running Lighthouse:
+
+1. Open DevTools (F12)
+2. Toggle device toolbar (Ctrl+Shift+M)
+3. Select "Mid-tier mobile" or custom profile:
+   - Network: Slow 4G (1.5 Mbps down, 400ms RTT)
+   - CPU: 4x slowdown
+4. Hard refresh (Ctrl+Shift+R)
+5. Check Network tab waterfall
+
+See [docs/mobile-optimization.md](docs/mobile-optimization.md) for comprehensive mobile optimization strategies.
 
 ## Workflow
 
@@ -101,11 +167,11 @@ npx lighthouse URL --output=json --output-path=./desktop.json --preset=desktop -
 2. **If JSON file provided:** Read and parse the Lighthouse report
 
 3. **Detect framework** from project files:
-   - `composer.json` + `vite.config.js` → Laravel + Vite → use [laravel-patterns.md](laravel-patterns.md)
-   - `package.json` with `react` + `vite` → React + Vite → use [react-patterns.md](react-patterns.md)
-   - `next.config.js` or `next.config.ts` → Next.js → use [nextjs-patterns.md](nextjs-patterns.md)
-   - `nuxt.config.ts` or `nuxt.config.js` → Nuxt 3 → use [vue-nuxt-patterns.md](vue-nuxt-patterns.md)
-   - `wp-config.php` or `style.css` with Theme → WordPress → use [wordpress-patterns.md](wordpress-patterns.md) **+ WordPress Safe Mode**
+   - `composer.json` + `vite.config.js` → Laravel + Vite → use [docs/laravel-patterns.md](docs/laravel-patterns.md)
+   - `package.json` with `react` + `vite` → React + Vite → use [docs/react-patterns.md](docs/react-patterns.md)
+   - `next.config.js` or `next.config.ts` → Next.js → use [docs/nextjs-patterns.md](docs/nextjs-patterns.md)
+   - `nuxt.config.ts` or `nuxt.config.js` → Nuxt 3 → use [docs/vue-nuxt-patterns.md](docs/vue-nuxt-patterns.md)
+   - `wp-config.php` or `style.css` with Theme → WordPress → use [docs/wordpress-patterns.md](docs/wordpress-patterns.md) **+ WordPress Safe Mode**
 
 4. **Categorize issues** by score impact:
    | Priority | Impact | Examples |
@@ -144,7 +210,7 @@ Before applying ANY fix, verify:
 | Image optimization | Quality loss | Visual comparison |
 | Security headers | API/iframe breaks | Test all integrations |
 
-See [troubleshooting.md](troubleshooting.md) for rollback procedures.
+See [docs/troubleshooting.md](docs/troubleshooting.md) for rollback procedures.
 
 ### Step 2: Fix (by category)
 
@@ -247,26 +313,29 @@ After applying fixes:
 5. Confirm all 4 categories at 95+ minimum (target: 100)
 6. Fill in "Final Results" section
 
-## Execution Checklist
+## Execution Checklist (Mobile-First)
 
 | # | Task | Category | Status |
 |---|------|----------|--------|
-| 1 | Run Mobile + Desktop audits | Setup | [ ] |
-| 2 | Analyze reports, identify stack | Setup | [ ] |
-| 3 | Pre-fix verification (Safety Checklist) | Safety | [ ] |
-| 4 | Font loading (preconnect, preload, swap) | Performance | [ ] |
-| 5 | LCP image optimization | Performance | [ ] |
-| 6 | Image dimensions (width/height) | Performance/CLS | [ ] |
-| 7 | Code splitting, defer scripts | Performance | [ ] |
-| 8 | Form autocomplete attributes | Accessibility | [ ] |
-| 9 | Button/link aria-labels | Accessibility | [ ] |
-| 10 | Color contrast fixes | Accessibility | [ ] |
-| 11 | Touch targets (44x44px minimum) | Accessibility | [ ] |
-| 12 | Security headers middleware | Best Practices | [ ] |
-| 13 | Meta tags, canonical URL | SEO | [ ] |
-| 14 | Post-fix verification (Safety Checklist) | Safety | [ ] |
-| 15 | Production build + re-test Mobile/Desktop | Verify | [ ] |
-| 16 | Fill Final Results (95+ = ✅ PASSED) | Complete | [ ] |
+| 1 | Run **Mobile** audit FIRST | Setup | [ ] |
+| 2 | Identify LCP element + measure file size | Setup | [ ] |
+| 3 | **Calculate mobile budget** (LCP < 100KB) | Setup | [ ] |
+| 4 | Analyze report, identify stack | Setup | [ ] |
+| 5 | Pre-fix verification (Safety Checklist) | Safety | [ ] |
+| 6 | **LCP image < 100KB + preload + fetchpriority** | Performance | [ ] |
+| 7 | Font loading (preconnect, preload, swap) | Performance | [ ] |
+| 8 | Image dimensions (width/height) | Performance/CLS | [ ] |
+| 9 | Code splitting, defer scripts | Performance | [ ] |
+| 10 | Form autocomplete attributes | Accessibility | [ ] |
+| 11 | Button/link aria-labels | Accessibility | [ ] |
+| 12 | Color contrast fixes | Accessibility | [ ] |
+| 13 | Touch targets (44x44px minimum) | Accessibility | [ ] |
+| 14 | Security headers middleware | Best Practices | [ ] |
+| 15 | Meta tags, canonical URL | SEO | [ ] |
+| 16 | Post-fix verification (Safety Checklist) | Safety | [ ] |
+| 17 | **Re-test Mobile** (if 95+ → Desktop auto-passes) | Verify | [ ] |
+| 18 | Run Desktop audit (confirmation only) | Verify | [ ] |
+| 19 | Fill Final Results (95+ = ✅ PASSED) | Complete | [ ] |
 
 ## Framework Patterns
 
@@ -274,11 +343,11 @@ Detailed implementation patterns for each framework:
 
 | Framework | File | Key Focus |
 |-----------|------|-----------|
-| Laravel + Vite + Alpine | [laravel-patterns.md](laravel-patterns.md) | Blade, middleware, Vite config |
-| React + Vite | [react-patterns.md](react-patterns.md) | Components, lazy loading, hooks |
-| Next.js | [nextjs-patterns.md](nextjs-patterns.md) | App router, Image component, metadata |
-| Vue 3 + Nuxt 3 | [vue-nuxt-patterns.md](vue-nuxt-patterns.md) | SSR, @nuxt/image, composables |
-| WordPress | [wordpress-patterns.md](wordpress-patterns.md) | Safe Mode, plugins, .htaccess |
+| Laravel + Vite + Alpine | [docs/laravel-patterns.md](docs/laravel-patterns.md) | Blade, middleware, Vite config |
+| React + Vite | [docs/react-patterns.md](docs/react-patterns.md) | Components, lazy loading, hooks |
+| Next.js | [docs/nextjs-patterns.md](docs/nextjs-patterns.md) | App router, Image component, metadata |
+| Vue 3 + Nuxt 3 | [docs/vue-nuxt-patterns.md](docs/vue-nuxt-patterns.md) | SSR, @nuxt/image, composables |
+| WordPress | [docs/wordpress-patterns.md](docs/wordpress-patterns.md) | Safe Mode, plugins, .htaccess |
 
 ---
 
@@ -354,7 +423,7 @@ If any of these are detected, activate WordPress Safe Mode:
 - Less risk of conflicts with updates
 - Easier rollback
 
-See [wordpress-patterns.md](wordpress-patterns.md) for plugin recommendations.
+See [docs/wordpress-patterns.md](docs/wordpress-patterns.md) for plugin recommendations.
 
 ### WordPress Safety Rules
 
@@ -460,16 +529,17 @@ Specialized optimization topics:
 
 | Topic | File | Content |
 |-------|------|---------|
-| Image Optimization | [images-optimization.md](images-optimization.md) | WebP/AVIF, srcset, compression tools |
-| Advanced Optimization | [advanced-optimization.md](advanced-optimization.md) | Database, PWA, local caching |
+| **Mobile Optimization** | [docs/mobile-optimization.md](docs/mobile-optimization.md) | Mobile-first methodology, budgets, LCP/FCP fixes |
+| Image Optimization | [docs/images-optimization.md](docs/images-optimization.md) | WebP/AVIF, srcset, compression tools |
+| Advanced Optimization | [docs/advanced-optimization.md](docs/advanced-optimization.md) | Database, PWA, local caching |
 
 ## Real-World Examples
 
-See [EXAMPLES.md](EXAMPLES.md) for case studies with before/after scores.
+See [docs/EXAMPLES.md](docs/EXAMPLES.md) for case studies with before/after scores.
 
 ## Troubleshooting
 
-Common issues and solutions: [troubleshooting.md](troubleshooting.md)
+Common issues and solutions: [docs/troubleshooting.md](docs/troubleshooting.md)
 
 **Quick diagnostics:**
 ```bash

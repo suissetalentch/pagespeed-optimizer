@@ -260,10 +260,89 @@ import Image from 'next/image';
 | Screenshots | 85-90 | 70-75 | Text needs clarity |
 | Decorative | 60-70 | 50-55 | Less critical |
 
+## Mobile Image Budget
+
+### Why Mobile Budget Matters
+
+Mobile Lighthouse simulates 4G: **~1.6 Mbps = 200KB/second**
+
+This means a 500KB image takes ~2.5 seconds to download on mobile, which alone can fail LCP.
+
+### Calculate Your LCP Image Budget
+
+```
+Target LCP: 2.5 seconds
+
+Time breakdown:
+├── DNS + TCP + TLS:  ~600ms
+├── Server response:  ~200ms
+├── HTML parse:       ~100ms
+└── Available:        ~1.6s for LCP image
+
+Max LCP image: 1.6s × 200KB/s = 320KB
+Safe target:   100KB (accounts for network variance)
+```
+
+### Mobile Image Size Guidelines
+
+| Image Type | Max Size | Rationale |
+|------------|----------|-----------|
+| **LCP image** | **100KB** | Must load in < 1.6s |
+| Hero background | 80KB | Critical path |
+| Product image | 50KB | Multiple on page |
+| Thumbnail | 15KB | Many on page |
+| Icon/Logo | 5KB | Should be SVG |
+
+### Mobile-First srcset
+
+Always list mobile sizes first (smallest to largest):
+
+```html
+<img
+  src="hero-400.webp"
+  srcset="
+    hero-400.webp 400w,
+    hero-800.webp 800w,
+    hero-1200.webp 1200w
+  "
+  sizes="(max-width: 640px) 100vw, 50vw"
+  alt="Hero image"
+  width="400"
+  height="300"
+  loading="eager"
+  fetchpriority="high"
+>
+```
+
+**Key points:**
+- `src` defaults to mobile size (400w)
+- Mobile breakpoint comes first in `sizes`
+- Smallest image first in `srcset`
+
+### Mobile Image Sizing Reference
+
+| Mobile Viewport | Full Width | Half Width | Third Width |
+|-----------------|------------|------------|-------------|
+| 412px (Lighthouse) | 412px | 206px | 137px |
+| 375px (iPhone) | 375px | 187px | 125px |
+| 360px (Android) | 360px | 180px | 120px |
+
+### Quick Size Check
+
+```bash
+# Find images over mobile budget
+find public -type f \( -name "*.jpg" -o -name "*.png" -o -name "*.webp" \) \
+  -size +100k -exec ls -lh {} \;
+
+# Get exact file sizes
+ls -lhS public/images/*.{jpg,png,webp} 2>/dev/null | head -10
+```
+
 ## Performance Checklist
 
 | Task | Impact | Done |
 |------|--------|------|
+| LCP image < 100KB | CRITICAL | [ ] |
 | Convert images to WebP | HIGH | [ ] |
 | Add width/height to all images | HIGH | [ ] |
 | Preload LCP image | HIGH | [ ] |

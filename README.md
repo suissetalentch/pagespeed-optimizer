@@ -29,19 +29,20 @@ A Claude Code skill to achieve 100% on all 4 Google PageSpeed Insights categorie
 
 | Framework | Status | Patterns File |
 |-----------|--------|---------------|
-| Laravel + Vite + Alpine.js | ✅ Ready | [laravel-patterns.md](laravel-patterns.md) |
-| React + Vite | ✅ Ready | [react-patterns.md](react-patterns.md) |
-| Next.js (App Router) | ✅ Ready | [nextjs-patterns.md](nextjs-patterns.md) |
-| Vue 3 + Nuxt 3 | ✅ Ready | [vue-nuxt-patterns.md](vue-nuxt-patterns.md) |
-| WordPress | 🚧 Coming Soon | [wordpress-patterns.md](wordpress-patterns.md) |
+| Laravel + Vite + Alpine.js | ✅ Ready | [docs/laravel-patterns.md](docs/laravel-patterns.md) |
+| React + Vite | ✅ Ready | [docs/react-patterns.md](docs/react-patterns.md) |
+| Next.js (App Router) | ✅ Ready | [docs/nextjs-patterns.md](docs/nextjs-patterns.md) |
+| Vue 3 + Nuxt 3 | ✅ Ready | [docs/vue-nuxt-patterns.md](docs/vue-nuxt-patterns.md) |
+| WordPress | ✅ Ready | [docs/wordpress-patterns.md](docs/wordpress-patterns.md) |
 
-## Optimization Modules
+## Optimization Guides
 
-| Module | Description | Guide |
-|--------|-------------|-------|
-| **Images** | WebP/AVIF conversion, srcset, compression | [images-optimization.md](images-optimization.md) |
-| **Advanced** | Database queries, PWA, local caching | [advanced-optimization.md](advanced-optimization.md) |
-| **Troubleshooting** | Common issues and solutions | [troubleshooting.md](troubleshooting.md) |
+| Guide | Description | File |
+|-------|-------------|------|
+| **Mobile-First** | Mobile methodology, budgets, LCP/FCP | [docs/mobile-optimization.md](docs/mobile-optimization.md) |
+| **Images** | WebP/AVIF conversion, srcset, compression | [docs/images-optimization.md](docs/images-optimization.md) |
+| **Advanced** | Database queries, PWA, local caching | [docs/advanced-optimization.md](docs/advanced-optimization.md) |
+| **Troubleshooting** | Common issues and solutions | [docs/troubleshooting.md](docs/troubleshooting.md) |
 
 ## Installation
 
@@ -132,7 +133,7 @@ The skill activates automatically when you mention:
 
 ## Real-World Example
 
-See [EXAMPLES.md](EXAMPLES.md) for a complete case study showing how we achieved 100% on all categories for a real website.
+See [docs/EXAMPLES.md](docs/EXAMPLES.md) for a complete case study showing how we achieved 100% on all categories for a real website.
 
 **Quick summary:**
 - Site: physio.chevassut.ch
@@ -149,19 +150,22 @@ pagespeed-optimizer/
 ├── LICENSE                     # MIT License
 ├── .gitignore
 │
-├── # Framework Patterns
-├── laravel-patterns.md         # Laravel + Vite + Alpine.js
-├── react-patterns.md           # React + Vite
-├── nextjs-patterns.md          # Next.js (App Router)
-├── vue-nuxt-patterns.md        # Vue 3 + Nuxt 3
-├── wordpress-patterns.md       # WordPress (Coming Soon)
-│
-├── # Optimization Guides
-├── images-optimization.md      # Image formats and tools
-├── advanced-optimization.md    # Database, PWA, caching
-├── troubleshooting.md          # Common issues
-│
-└── EXAMPLES.md                 # Real-world case studies
+└── docs/                       # Documentation
+    │
+    ├── # Framework Patterns
+    ├── laravel-patterns.md     # Laravel + Vite + Alpine.js
+    ├── react-patterns.md       # React + Vite
+    ├── nextjs-patterns.md      # Next.js (App Router)
+    ├── vue-nuxt-patterns.md    # Vue 3 + Nuxt 3
+    ├── wordpress-patterns.md   # WordPress
+    │
+    ├── # Optimization Guides
+    ├── mobile-optimization.md  # Mobile-first methodology
+    ├── images-optimization.md  # Image formats and tools
+    ├── advanced-optimization.md # Database, PWA, caching
+    ├── troubleshooting.md      # Common issues
+    │
+    └── EXAMPLES.md             # Real-world case studies
 ```
 
 ## Tools Used
